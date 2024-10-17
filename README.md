@@ -4,6 +4,28 @@ This project is a simplified, in-memory Redis-like key-value store mocked as a C
 
 This is largely inspired by existing [Redis](https://redis.io/) behavior - please see their docs for a more detailed overview: <https://redis.io/docs/latest/commands>
 
+## Usage
+
+To run locally, run
+
+```sh
+go run main.go store.go utils.go
+```
+
+Alternatively, you can build the project and run the executable:
+
+```sh
+make start
+
+# OR
+
+go build -o ./bin/redis-go-cli 
+./bin/redis-go-cli
+```
+
+Then start entering Redis commands!
+
+
 ## Available Commands
 
 ### 1. `SET key value [NX | XX] [GET]`
@@ -40,23 +62,14 @@ This is largely inspired by existing [Redis](https://redis.io/) behavior - pleas
   redis> DEL key1 key2
   ```
 
-## How to Execute
+## Testing
 
-To run locally, just run
-
-```sh
-go run main.go store.go utils.go
-```
-
-Alternatively, you can build the project and run the executable:
+To run tests, run
 
 ```sh
-make start
+make test
 
 # OR
 
-go build -o ./bin/redis-go-cli 
-./bin/redis-go-cli
+go test -v
 ```
-
-Then start entering Redis commands!
