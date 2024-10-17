@@ -18,6 +18,8 @@ Simple Redis CLI. Commands:
 - LPOP key                      : Pop the first element from a list
 - LLEN key                      : Get the length of a list at key
 - LRANGE key start stop         : Get elements of the list stored at key from start to stop
+- HSET key field value          : Set a field in a hash
+- HGET key field                : Get a field value from a hash
 - HELP                          : Show available commands
 - QUIT                          : Close the CLI
 
@@ -189,6 +191,37 @@ func main() {
 				for i, value := range result {
 					fmt.Printf("%d) \"%s\"\n", i+1, value)
 				}
+			}
+
+		case "HSET":
+			if len(args) != 4 {
+				fmt.Println("(error) wrong number of arguments for 'hset' command")
+				continue
+			}
+
+			key, field, value := args[1], args[2], args[3]
+
+			if err := store.HSet(key, field, value); err != nil {
+				fmt.Println(err)
+			} else {
+				fmt.Println("(integer) 1")
+			}
+
+		case "HGET":
+			if len(args) != 3 {
+				fmt.Println("(error) wrong number of arguments for 'hget' command")
+				continue
+			}
+
+			key, field := args[1], args[2]
+
+			value, found, err := store.HGet(key, field)
+			if err != nil {
+				fmt.Println(err)
+			} else if !found {
+				fmt.Println("(nil)")
+			} else {
+				fmt.Println(value)
 			}
 
 		case "HELP":

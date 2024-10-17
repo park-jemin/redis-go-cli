@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 // Test SET, GET, and DEL functionality for strings
 func TestSetGetDel(t *testing.T) {
@@ -211,3 +214,58 @@ func TestLRange(t *testing.T) {
 	}
 }
 
+// Test HSET and HGET functionality for hashes
+func TestHSetHGet(t *testing.T) {
+	store := NewStore()
+
+	// Test HSET
+	err := store.HSet("hash1", "field1", "value1")
+	if err != nil {
+		t.Fatalf("HSET failed: %v", err)
+	}
+
+	// Test HGET
+	val, found, err := store.HGet("hash1", "field1")
+	if err != nil || !found || val != "value1" {
+		t.Fatalf("HGET failed: expected 'value1', got '%s'", val)
+	}
+
+	// HGET on non-existing field
+	_, found, _ = store.HGet("hash1", "non_existent")
+	if found {
+		t.Errorf("Expected non-existing field to return false")
+	}
+}
+
+// Test type-checking (WRONGTYPE error)
+func TestWrongType(t *testing.T) {
+	store := NewStore()
+
+	// Set a key as string
+	store.Set("string1", "value1")
+
+	// Try to perform list operations on a string key
+	_, err := store.LPush("string1", "invalid")
+	if err == nil || strings.HasPrefix(err.Error(), "WRONGTYPE") {
+		t.Errorf("Expected WRONGTYPE error, got %v", err)
+	}
+
+	// Set a key as a list
+	store.LPush("list1", "value1")
+
+	// Try to perform hash operations on a list key
+	err = store.HSet("list1", "field1", "value1")
+	if err == nil || strings.HasPrefix(err.Error(), "WRONGTYPE") {
+		t.Errorf("Expected WRONGTYPE error, got %v", err)
+	}
+
+	// Set a key as a hash
+	store.HSet("hash1", "field1", "value1")
+
+	// Try to perform string operations on a hash key
+	err = store.Set("hash1", "value1")
+
+	if err == nil || strings.HasPrefix(err.Error(), "WRONGTYPE") {
+		t.Errorf("Expected WRONGTYPE error, got %v", err)
+	}
+}

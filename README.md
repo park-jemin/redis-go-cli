@@ -104,6 +104,26 @@ Then start entering Redis commands!
   redis> LRANGE mylist -3 -1 # Gets the last 3 elements
   ```
 
+### 8. `HSET key field value`
+
+- Sets the value of field in a hash stored at `key`. If the key doesn't exist, a new hash is created for that key.
+- Link: <https://redis.io/docs/latest/commands/hset/>
+- **Example**:
+
+  ```sh
+  redis> HSET myhash field1 value1
+  ```
+
+### 9. `HGET key field`
+
+- Retrieves the value of a field in a hash stored at `key`.
+- Link: <https://redis.io/docs/latest/commands/hget/>
+- **Example**:
+
+  ```sh
+  redis> HGET myhash field1
+  ```
+
 ## Testing
 
 To run tests, run

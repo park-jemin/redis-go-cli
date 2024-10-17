@@ -174,3 +174,27 @@ func (s *Store) LRange(key string, start, stop int) ([]string, error) {
 	return result, nil
 }
 
+// HSet sets a field in a hash
+func (s *Store) HSet(key, field, value string) error {
+	if err := s.TypeCheck(key, Hash); err != nil {
+		return err
+	}
+	if _, exists := s.hashes[key]; !exists {
+		s.hashes[key] = make(map[string]string)
+		s.types[key] = Hash
+	}
+	s.hashes[key][field] = value
+	return nil
+}
+
+// HGet retrieves a field value from a hash
+func (s *Store) HGet(key, field string) (string, bool, error) {
+	if err := s.TypeCheck(key, Hash); err != nil {
+		return "", false, err
+	}
+	if hash, found := s.hashes[key]; found {
+		value, found := hash[field]
+		return value, found, nil
+	}
+	return "", false, nil
+}
