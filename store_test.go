@@ -121,3 +121,93 @@ func TestSetSameValueMultipleTimes(t *testing.T) {
 		t.Errorf("Expected 'value1', got '%s', exists: %v", value, exists)
 	}
 }
+
+// Test LPush and LPop functionality
+func TestLPushLPop(t *testing.T) {
+	store := NewStore()
+
+	// Test LPush
+	count, err := store.LPush("list1", "one", "two", "three")
+	if err != nil || count != 3 {
+		t.Fatalf("LPUSH failed: %v, count: %d", err, count)
+	}
+
+	// Test LPop
+	val, found, err := store.LPop("list1")
+	if err != nil || !found || val != "three" {
+		t.Fatalf("Expected 'three', got '%s', found: %v, err: %v", val, found, err)
+	}
+
+	// Continue popping
+	val, _, _ = store.LPop("list1")
+	if val != "two" {
+		t.Errorf("Expected 'two', got '%s'", val)
+	}
+
+	val, _, _ = store.LPop("list1")
+	if val != "one" {
+		t.Errorf("Expected 'one', got '%s'", val)
+	}
+
+	// LPop on empty list
+	_, found, _ = store.LPop("list1")
+	if found {
+		t.Errorf("Expected list to be empty")
+	}
+}
+
+// Test LLen functionality
+func TestLLen(t *testing.T) {
+	store := NewStore()
+
+	store.LPush("list1", "one", "two", "three")
+
+	// Test LLen on non-empty list
+	if length, err := store.LLen("list1"); err != nil || length != 3 {
+		t.Fatalf("Expected length 3, got %d, error: %v", length, err)
+	}
+
+	// Test LLen on empty list
+	store.LPush("list2", "four")
+	store.LPop("list2")
+	if length, err := store.LLen("list2"); err != nil || length != 0 {
+		t.Fatalf("Expected length 0 for empty list, got %d, error: %v", length, err)
+	}
+
+	// Test LLen on non-existent key
+	if length, err := store.LLen("nonExistent"); err != nil {
+		t.Fatalf("Expected length 0 for nonexistent key, got %d, error: %v", length, err)
+	}
+}
+
+// Test LRange functionality
+func TestLRange(t *testing.T) {
+	store := NewStore()
+
+	store.LPush("list1", "one", "two", "three")
+
+	// Test LRANGE within bounds
+	result, err := store.LRange("list1", 0, 2)
+	if err != nil {
+		t.Fatalf("LRANGE failed: %v", err)
+	}
+	expected := []string{"three", "two", "one"}
+	if len(result) != len(expected) {
+		t.Fatalf("Expected %d elements, got %d", len(expected), len(result))
+	}
+	for i, val := range result {
+		if val != expected[i] {
+			t.Errorf("Expected '%s', got '%s'", expected[i], val)
+		}
+	}
+
+	// Test LRANGE with out-of-bounds indexes
+	result, err = store.LRange("list1", -100, 100)
+	if err != nil {
+		t.Fatalf("LRANGE failed: %v", err)
+	}
+	if len(result) != 3 {
+		t.Errorf("Expected all elements, got %d", len(result))
+	}
+}
+

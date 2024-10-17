@@ -62,6 +62,48 @@ Then start entering Redis commands!
   redis> DEL key1 key2
   ```
 
+### 4. `LPUSH key value [value ...]`
+
+- Pushes one or more values onto the left end of a list stored at  `key`. If a key does not exist, an empty list is created before pushing. If a non-list value is stored here, an error will be returned.
+- Link: <https://redis.io/docs/latest/commands/lpush/>
+- **Example**:
+
+  ```sh
+  redis> LPUSH mylist "one" "two" "three"
+  ```
+
+### 5. `LPOP key`
+
+- Get the length of a list at `key`, 0 if the key does not exist. If a non-list value is stored here, an error will be returned.
+- Link: <https://redis.io/docs/latest/commands/lpop/>
+- **Example**:
+
+  ```sh
+  redis> LPOP mylist
+  ```
+
+### 6. `LLEN key`
+
+- Removes and returns the first element of the list stored at `key`. If a non-list value is stored here, an error will be returned.
+- Link: <https://redis.io/docs/latest/commands/llen/>
+- **Example**:
+
+  ```sh
+  redis> LLEN mylist
+  ```
+
+### 7. `LRANGE key start stop`
+
+- Returns a range of elements from the list stored at `key`, between the `start` and `stop` indexes (inclusive). Supports negative indexes to count from the end of the list. If a non-list value is stored here, an error will be returned.
+- Link: <https://redis.io/docs/latest/commands/lrange/>
+- **Example**:
+
+  ```sh
+  redis> LRANGE mylist 0 -1 # Gets all items in the list from the head
+  redis> LRANGE mylist -3 2 # Gets 3 elemnts from the third rightmost element to the third leftmost
+  redis> LRANGE mylist -3 -1 # Gets the last 3 elements
+  ```
+
 ## Testing
 
 To run tests, run

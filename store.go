@@ -84,3 +84,93 @@ func (s *Store) Del(keys ...string) uint {
 	return deleted
 }
 
+// LPush inserts values at the head of a list
+func (s *Store) LPush(key string, values ...string) (int, error) {
+	if err := s.TypeCheck(key, List); err != nil {
+		return 0, err
+	}
+	if _, exists := s.lists[key]; !exists {
+		s.lists[key] = list.New()
+		s.types[key] = List
+	}
+	for _, value := range values {
+		s.lists[key].PushFront(value)
+	}
+	return len(values), nil
+}
+
+// LPop removes and returns the first element of a list
+func (s *Store) LPop(key string) (string, bool, error) {
+	if err := s.TypeCheck(key, List); err != nil {
+		return "", false, err
+	}
+	if list, found := s.lists[key]; found && list.Len() > 0 {
+		value := list.Remove(list.Front()).(string)
+		return value, true, nil
+	}
+	return "", false, nil
+}
+
+func (s *Store) LLen(key string) (int, error) {
+	if err := s.TypeCheck(key, List); err != nil {
+		return 0, err
+	}
+	if list, found := s.lists[key]; found {
+		return list.Len(), nil
+	}
+	return 0, nil
+}
+
+// LRange returns a subrange of elements from the list at the given key
+func (s *Store) LRange(key string, start, stop int) ([]string, error) {
+	// Type check to ensure the key is a list
+	if err := s.TypeCheck(key, List); err != nil {
+		return nil, err
+	}
+
+	list, found := s.lists[key]
+	if !found || list.Len() == 0 {
+		return []string{}, nil
+	}
+
+	length := list.Len()
+
+	// Handle negative indexes
+	if start < 0 {
+		start = length + start
+	}
+	if stop < 0 {
+		stop = length + stop
+	}
+
+	// If start is greater than the length of the list, return an empty array
+	if start >= length {
+		return []string{}, nil
+	}
+
+	// Bound the stop index to the end of the list
+	if stop >= length {
+		stop = length - 1
+	}
+
+	// If start is greater than stop, return an empty array
+	if start > stop {
+		return []string{}, nil
+	}
+
+	// Collect elements within the specified range
+	result := []string{}
+	i := 0
+	for e := list.Front(); e != nil; e = e.Next() {
+		if i >= start && i <= stop {
+			result = append(result, e.Value.(string))
+		}
+		if i > stop {
+			break
+		}
+		i++
+	}
+
+	return result, nil
+}
+

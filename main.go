@@ -14,6 +14,10 @@ Simple Redis CLI. Commands:
 - SET key value [NX | XX] [GET] : Set a key to a string value
 - GET key                       : Get the string value of key, or nil if the key does not exist
 - DEL key [key...]              : Deletes the specified keys, ignoring non-existing keys
+- LPUSH key value [value...]    : Add one or more values to the beginning of the list
+- LPOP key                      : Pop the first element from a list
+- LLEN key                      : Get the length of a list at key
+- LRANGE key start stop         : Get elements of the list stored at key from start to stop
 - HELP                          : Show available commands
 - QUIT                          : Close the CLI
 
@@ -110,6 +114,82 @@ func main() {
 
 			deleted := store.Del(args[1:]...)
 			fmt.Println("(integer)", deleted)
+
+		case "LPUSH":
+			if len(args) < 3 {
+				fmt.Println("(error) wrong number of arguments for 'lpush' command")
+				continue
+			}
+
+			key, values := args[1], args[2:]
+
+			if count, err := store.LPush(key, values...); err != nil {
+				fmt.Println(err)
+			} else {
+				fmt.Println("(integer)", count)
+			}
+
+		case "LPOP":
+			if len(args) != 2 {
+				fmt.Println("(error) wrong number of arguments for 'lpop' command")
+				continue
+			}
+
+			key := args[1]
+
+			// TODO: add count support
+			value, found, err := store.LPop(key)
+			if err != nil {
+				fmt.Println(err)
+			} else if !found {
+				fmt.Println("(nil)")
+			} else {
+				fmt.Println(value)
+			}
+
+		case "LLEN":
+			if len(args) != 2 {
+				fmt.Println("(error) wrong number of arguments for 'llen' command")
+				continue
+			}
+
+			key := args[1]
+			length, err := store.LLen(key)
+			if err != nil {
+				fmt.Println("(error)", err)
+			} else {
+				fmt.Println("(integer)", length)
+			}
+
+		case "LRANGE":
+			if len(args) != 4 {
+				fmt.Println("(error) wrong number of arguments for 'lrange' command")
+				continue
+			}
+
+			key := args[1]
+			start, err := strconv.Atoi(args[2])
+			if err != nil {
+				fmt.Println("(error) ERR value is not an integer or out of range")
+				continue
+			}
+
+			stop, err := strconv.Atoi(args[3])
+			if err != nil {
+				fmt.Println("(error) ERR value is not an integer or out of range")
+				continue
+			}
+
+			result, err := store.LRange(key, start, stop)
+			if err != nil {
+				fmt.Println(err)
+			} else if len(result) == 0 {
+				fmt.Println("(empty array)")
+			} else {
+				for i, value := range result {
+					fmt.Printf("%d) \"%s\"\n", i+1, value)
+				}
+			}
 
 		case "HELP":
 			fmt.Println(instructions)
