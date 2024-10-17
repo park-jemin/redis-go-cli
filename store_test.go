@@ -246,7 +246,7 @@ func TestWrongType(t *testing.T) {
 
 	// Try to perform list operations on a string key
 	_, err := store.LPush("string1", "invalid")
-	if err == nil || strings.HasPrefix(err.Error(), "WRONGTYPE") {
+	if err == nil || !strings.HasPrefix(err.Error(), "WRONGTYPE") {
 		t.Errorf("Expected WRONGTYPE error, got %v", err)
 	}
 
@@ -255,7 +255,7 @@ func TestWrongType(t *testing.T) {
 
 	// Try to perform hash operations on a list key
 	err = store.HSet("list1", "field1", "value1")
-	if err == nil || strings.HasPrefix(err.Error(), "WRONGTYPE") {
+	if err == nil || !strings.HasPrefix(err.Error(), "WRONGTYPE") {
 		t.Errorf("Expected WRONGTYPE error, got %v", err)
 	}
 
@@ -265,7 +265,7 @@ func TestWrongType(t *testing.T) {
 	// Try to perform string operations on a hash key
 	err = store.Set("hash1", "value1")
 
-	if err == nil || strings.HasPrefix(err.Error(), "WRONGTYPE") {
+	if err == nil || !strings.HasPrefix(err.Error(), "WRONGTYPE") {
 		t.Errorf("Expected WRONGTYPE error, got %v", err)
 	}
 }

@@ -14,6 +14,9 @@ clean:
 run: build
 	@trap 'make clean' EXIT; ./$(BINARY_NAME)
 
+test:
+	go test -v
+
 docker-build:
 	docker build -t $(DOCKER_IMAGE) .
 
@@ -31,6 +34,7 @@ help:
 	@echo "  make build        - Build the Go binary"
 	@echo "  make clean        - Remove the built binary"
 	@echo "  make run          - Run the Go binary locally"
+	@echo "  make test         - Run the Go tests"
 	@echo "  make docker-build - Build the Docker image"
 	@echo "  make docker-run   - Run the Docker container"
 	@echo "  make docker-up    - Build and run with Docker"
