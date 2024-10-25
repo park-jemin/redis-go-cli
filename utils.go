@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"strings"
 )
 
 // SetOptions Optional arguments for SET
@@ -23,7 +24,7 @@ func ParseSetOptions(args []string) (*SetOptions, error) {
 	options := &SetOptions{}
 
 	for _, arg := range args {
-		switch arg {
+		switch strings.ToUpper(arg) {
 		case "NX":
 			options.NX = true
 		case "XX":
